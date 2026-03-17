@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>萌宠分享 - 照片展示与日常分享平台</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌈</text></svg>">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="#" class="logo">
+                <i class="fas fa-rainbow" style="background: linear-gradient(45deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"></i>
+                <span>萌宠分享</span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="#home" class="active" onclick="showPage('home')">首页</a></li>
+                <li><a href="#gallery" onclick="showPage('gallery')">萌宠图库</a></li>
+                <li><a href="#upload" onclick="showPage('upload')">上传照片</a></li>
+            </ul>
+            <div class="nav-auth" id="nav-auth-container">
+                <!-- 未登录状态 -->
+                <div id="nav-not-logged">
+                    <button id="login-btn" class="btn btn-outline">登录 / 注册</button>
+                </div>
+                <!-- 已登录状态 -->
+                <div id="nav-logged" style="display:none">
+                    <span class="user-points">
+                        <i class="fas fa-coins"></i> <span id="user-points">0</span>
+                    </span>
+                    <div class="user-menu">
+                        <span id="username-display" onclick="toggleUserMenu()"></span>
+                        <div class="user-dropdown" id="user-dropdown" style="display:none">
+                            <a href="#profile" onclick="showPage('profile'); toggleUserMenu();">
+                                <i class="fas fa-user"></i> 个人中心
+                            </a>
+                            <a href="#" onclick="showChangePasswordModal(); toggleUserMenu(); return false;">
+                                <i class="fas fa-key"></i> 修改密码
+                            </a>
+                            <a href="#admin" id="nav-admin-link" style="display:none" onclick="showPage('admin'); toggleUserMenu();">
+                                <i class="fas fa-cog"></i> 后台管理
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <a href="#" onclick="logout(); toggleUserMenu(); return false;" class="logout-link">
+                                <i class="fas fa-sign-out-alt"></i> 退出登录
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主内容区 -->
+    <main id="main-content">
+        <!-- 首页 -->
+        <section id="home" class="page active">
+            <div class="hero">
+                <div class="hero-content">
+                    <h1>分享你的精彩瞬间</h1>
+                    <p>上传小猫小狗照片或日常分享，记录美好时刻，与万千网友分享快乐</p>
+                    <div class="hero-stats">
+                        <div class="stat">
+                            <span class="stat-number" id="total-photos">0</span>
+                            <span class="stat-label">萌宠照片</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-number" id="total-downloads">0</span>
+                            <span class="stat-label">下载次数</span>
+                        </div>
+                    </div>
+                    <button class="btn btn-large btn-primary" onclick="showPage('upload')">
+                        <i class="fas fa-upload"></i> 立即上传
+                    </button>
+                </div>
+                <div class="hero-images">
+                    <div class="hero-image-main">
+                        <img src="https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=600&h=400&fit=crop" alt="可爱猫咪" id="hero-img-1">
+                    </div>
+                    <div class="hero-image-secondary">
+                        <img src="https://images.unsplash.com/photo-1574158622682-e40e69881006?w=600&h=400&fit=crop" alt="萌宠猫咪" id="hero-img-2">
+                    </div>
+                </div>
+            </div>
+
+            <!-- QQ群信息 -->
+            <div class="qq-group-section">
+                <h2><i class="fas fa-users"></i> 加入我们的QQ交流群</h2>
+                <div class="qq-group-content">
+                    <div class="qq-info">
+                        <p><i class="fab fa-qq"></i> 群号：<strong>10767900955</strong></p>
+                        <p>扫码加入，与更多宠友交流互动！</p>
+                    </div>
+                    <div class="qq-qr">
+                        <img src="images/qq-qr.png" alt="QQ群二维码" onerror="this.src='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=10767900955'">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 图库页面 -->
+        <section id="gallery" class="page">
+            <div class="section-header">
+                <h2>萌宠图库</h2>
+                <div class="filter-tabs">
+                    <button class="filter-btn active" data-filter="all">全部</button>
+                    <button class="filter-btn" data-filter="cat">猫咪</button>
+                    <button class="filter-btn" data-filter="dog">狗狗</button>
+                    <button class="filter-btn" data-filter="daily">日常分享</button>
+                </div>
+            </div>
+            <div id="photo-grid" class="photo-grid">
+                <!-- 照片将通过JS动态加载 -->
+            </div>
+            <div id="gallery-loading" class="loading" style="display:none">
+                <i class="fas fa-spinner fa-spin"></i> 加载中...
+            </div>
+        </section>
+
+        <!-- 上传页面 -->
+        <section id="upload" class="page">
+            <div class="upload-container">
+                <h2>上传萌宠照片</h2>
+                <div id="upload-login-required" class="alert alert-info" style="display:none">
+                    <i class="fas fa-info-circle"></i> 请先登录后再上传照片
+                    <button class="btn btn-primary" onclick="showLoginModal()">去登录</button>
+                </div>
+                <form id="upload-form" class="upload-form">
+                    <div class="upload-area" id="upload-area">
+                        <input type="file" id="photo-input" accept="image/*" hidden>
+                        <div class="upload-placeholder">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <p>点击或拖拽照片到此处</p>
+                            <span>支持 JPG、PNG 格式，最大 10MB</span>
+                        </div>
+                        <img id="upload-preview" class="upload-preview" style="display:none">
+                    </div>
+                    <div class="form-group">
+                        <label>上传区域</label>
+                        <div class="radio-group">
+                            <label class="radio-label">
+                                <input type="radio" name="upload-section" value="pet" checked>
+                                <span><i class="fas fa-paw"></i> 萌宠专区</span>
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="upload-section" value="daily">
+                                <span><i class="fas fa-images"></i> 日常分享</span>
+                            </label>
+                        </div>
+                        <small id="section-hint">萌宠专区只能上传包含猫或狗的照片</small>
+                    </div>
+                    <div class="form-group" id="pet-type-group">
+                        <label>宠物类型</label>
+                        <div class="radio-group">
+                            <label class="radio-label">
+                                <input type="radio" name="pet-type" value="cat" checked>
+                                <span><i class="fas fa-cat"></i> 猫咪</span>
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="pet-type" value="dog">
+                                <span><i class="fas fa-dog"></i> 狗狗</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="photo-title">标题</label>
+                        <input type="text" id="photo-title" placeholder="给你的照片起个名字" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="photo-desc">介绍</label>
+                        <textarea id="photo-desc" rows="3" placeholder="介绍一下你的照片..." required></textarea>
+                    </div>
+                    <div id="upload-status" class="upload-status" style="display:none">
+                        <div class="ai-checking">
+                            <i class="fas fa-robot"></i>
+                            <span id="ai-checking-text">AI正在审核照片...</span>
+                            <div class="progress-bar">
+                                <div class="progress-fill"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="upload-result" class="alert" style="display:none"></div>
+                    <button type="submit" class="btn btn-primary btn-large" id="upload-submit">
+                        <i class="fas fa-upload"></i> 上传照片 (+1积分)
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <!-- 个人中心 -->
+        <section id="profile" class="page">
+            <div class="profile-container">
+                <div class="profile-sidebar">
+                    <div class="profile-avatar">
+                        <i class="fas fa-user-circle"></i>
+                    </div>
+                    <h3 id="profile-username">用户名</h3>
+                    <p class="profile-points">
+                        <i class="fas fa-coins"></i> <span id="profile-points">0</span> 积分
+                    </p>
+                    <div class="profile-stats">
+                        <div class="profile-stat">
+                            <span id="profile-uploads">0</span>
+                            <label>上传</label>
+                        </div>
+                        <div class="profile-stat">
+                            <span id="profile-downloads">0</span>
+                            <label>下载</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="profile-content">
+                    <div class="profile-tabs">
+                        <button class="tab-btn active" data-tab="my-photos">我的照片</button>
+                        <button class="tab-btn" data-tab="settings">账号设置</button>
+                    </div>
+                    <div id="my-photos" class="tab-content active">
+                        <div id="my-photo-grid" class="photo-grid">
+                            <!-- 我的照片 -->
+                        </div>
+                    </div>
+                    <div id="settings" class="tab-content">
+                        <h3>修改密码</h3>
+                        <form id="change-password-form" class="settings-form">
+                            <div class="form-group">
+                                <label>原密码</label>
+                                <input type="password" id="old-password" required>
+                            </div>
+                            <div class="form-group">
+                                <label>新密码</label>
+                                <input type="password" id="new-password" required minlength="6">
+                                <small>密码不少于6位，可以是数字、字母或组合</small>
+                            </div>
+                            <div class="form-group">
+                                <label>确认新密码</label>
+                                <input type="password" id="confirm-password" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">修改密码</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 后台管理 -->
+        <section id="admin" class="page">
+            <div class="admin-container">
+                <h2><i class="fas fa-cog"></i> 后台管理</h2>
+                <div class="admin-tabs">
+                    <button class="tab-btn active" data-tab="user-management">用户管理</button>
+                    <button class="tab-btn" data-tab="photo-management">照片审核</button>
+                </div>
+                <div id="user-management" class="tab-content active">
+                    <div class="admin-search">
+                        <input type="text" id="user-search" placeholder="搜索用户名...">
+                        <button class="btn btn-primary" onclick="searchUsers()">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>用户名</th>
+                                <th>积分</th>
+                                <th>上传数</th>
+                                <th>注册时间</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="user-table-body">
+                            <!-- 用户列表 -->
+                        </tbody>
+                    </table>
+                </div>
+                <div id="photo-management" class="tab-content">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>照片</th>
+                                <th>标题</th>
+                                <th>上传者</th>
+                                <th>类型</th>
+                                <th>状态</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="photo-table-body">
+                            <!-- 照片列表 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 登录/注册弹窗 -->
+    <div id="auth-modal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close">&times;</span>
+            <div class="auth-tabs">
+                <button class="auth-tab active" data-auth="login">登录</button>
+                <button class="auth-tab" data-auth="register">注册</button>
+            </div>
+            <!-- 登录表单 -->
+            <form id="login-form" class="auth-form">
+                <div class="form-group">
+                    <label>账号</label>
+                    <input type="text" id="login-username" placeholder="字母+数字组合" required>
+                </div>
+                <div class="form-group">
+                    <label>密码</label>
+                    <div class="password-input-wrapper">
+                        <input type="password" id="login-password" required>
+                        <button type="button" class="toggle-password" onclick="togglePasswordVisibility('login-password', this)">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                <div id="login-error" class="form-error"></div>
+                <button type="submit" class="btn btn-primary btn-large">登录</button>
+            </form>
+            <!-- 注册表单 -->
+            <form id="register-form" class="auth-form" style="display:none">
+                <div class="form-group">
+                    <label>账号</label>
+                    <input type="text" id="register-username" placeholder="字母+数字组合，如: user123" required>
+                    <small>账号必须包含字母和数字，不能重复</small>
+                </div>
+                <div class="form-group">
+                    <label>密码</label>
+                    <div class="password-input-wrapper">
+                        <input type="password" id="register-password" placeholder="不少于6位" required minlength="6">
+                        <button type="button" class="toggle-password" onclick="togglePasswordVisibility('register-password', this)">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    <small>密码不少于6位，可以是数字、字母或组合</small>
+                </div>
+                <div class="form-group">
+                    <label>确认密码</label>
+                    <div class="password-input-wrapper">
+                        <input type="password" id="register-confirm" required>
+                        <button type="button" class="toggle-password" onclick="togglePasswordVisibility('register-confirm', this)">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                <div id="register-error" class="form-error"></div>
+                <button type="submit" class="btn btn-primary btn-large">注册</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 照片详情弹窗 -->
+    <div id="photo-modal" class="modal">
+        <div class="modal-content modal-large">
+            <span class="modal-close">&times;</span>
+            <div class="photo-detail">
+                <div class="photo-detail-image">
+                    <img id="detail-image" src="" alt="">
+                </div>
+                <div class="photo-detail-info">
+                    <h3 id="detail-title"></h3>
+                    <p id="detail-desc"></p>
+                    <div class="photo-meta">
+                        <span><i class="fas fa-user"></i> <span id="detail-uploader"></span></span>
+                        <span><i class="fas fa-clock"></i> <span id="detail-date"></span></span>
+                        <span id="detail-type"></span>
+                        <span id="detail-likes"><i class="fas fa-heart"></i> <span id="like-count">0</span></span>
+                    </div>
+                    <!-- 操作按钮行 -->
+                    <div class="photo-actions-row">
+                        <button id="like-btn" class="btn btn-sm btn-outline">
+                            <i class="far fa-heart"></i> 点赞
+                        </button>
+                        <button id="download-btn" class="btn btn-sm btn-primary">
+                            <i class="fas fa-download"></i> 下载
+                        </button>
+                        <button id="delete-photo-btn" class="btn btn-sm btn-danger" style="display:none">
+                            <i class="fas fa-trash"></i> 删除
+                        </button>
+                        <span id="download-status"></span>
+                    </div>
+                    <!-- 评论区 -->
+                    <div class="comments-section">
+                        <div class="comments-header">
+                            <h4><i class="fas fa-comments"></i> 评论</h4>
+                            <button id="comment-toggle-btn" class="btn btn-sm btn-outline" onclick="toggleCommentForm()">
+                                <i class="fas fa-comment"></i> 写评论
+                            </button>
+                        </div>
+                        <div id="comment-form" class="comment-form" style="display:none">
+                            <textarea id="comment-input" placeholder="写下你的评论..." rows="2"></textarea>
+                            <button class="btn btn-primary" onclick="submitComment()">
+                                <i class="fas fa-paper-plane"></i> 发表评论
+                            </button>
+                        </div>
+                        <div id="comment-login-tip" class="comment-login-tip" style="display:none">
+                            <a href="#" onclick="showLoginModal(); return false;">登录</a> 后发表评论
+                        </div>
+                        <div id="comments-list" class="comments-list">
+                            <!-- 评论列表 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 重置密码弹窗 -->
+    <div id="reset-modal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close">&times;</span>
+            <h3>重置用户密码</h3>
+            <p>确定要将 <strong id="reset-username"></strong> 的密码重置为初始密码吗？</p>
+            <p class="text-muted">初始密码将与账号名一致</p>
+            <div class="modal-actions">
+                <button class="btn btn-outline" onclick="closeModal('reset-modal')">取消</button>
+                <button class="btn btn-primary" onclick="confirmResetPassword()">确认重置</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 修改密码弹窗 -->
+    <div id="change-password-modal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeModal('change-password-modal')">&times;</span>
+            <h3>修改密码</h3>
+            <form id="change-password-modal-form" class="auth-form">
+                <div class="form-group">
+                    <label>原密码</label>
+                    <input type="password" id="modal-old-password" required>
+                </div>
+                <div class="form-group">
+                    <label>新密码</label>
+                    <input type="password" id="modal-new-password" required minlength="6">
+                    <small>密码不少于6位</small>
+                </div>
+                <div class="form-group">
+                    <label>确认新密码</label>
+                    <input type="password" id="modal-confirm-password" required>
+                </div>
+                <div id="change-password-error" class="form-error"></div>
+                <button type="submit" class="btn btn-primary btn-large">修改密码</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 提示消息 -->
+    <div id="toast" class="toast">
+        <i class="fas fa-check-circle"></i>
+        <span id="toast-message"></span>
+    </div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
