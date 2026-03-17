@@ -1237,7 +1237,11 @@ async function apiCall(endpoint, method = 'GET', body = null) {
     options.body = JSON.stringify(body);
   }
   
-  const response = await fetch(endpoint, options);
+  // 使用 Netlify 后端 API
+  const API_BASE = 'https://9720.netlify.app/.netlify/functions';
+  const url = endpoint.startsWith('http') ? endpoint : API_BASE + endpoint.replace('/api', '');
+  
+  const response = await fetch(url, options);
   return await response.json();
 }
 
